@@ -1,6 +1,6 @@
 package com.pablito.generator.handler;
 
-import com.pablito.generator.model.GoogleGeolocalizationResponse;
+import com.pablito.generator.model.GoogleGeolocalizationResponseModel;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -23,14 +23,14 @@ public class GeneratorHandler {
 
     public Mono<ServerResponse> generateUsers(final ServerRequest request) {
         if (request.queryParam("city").isPresent()) {
-            Mono<GoogleGeolocalizationResponse> object = WebClient.create(GOOGLE_API_URL)
+            Mono<GoogleGeolocalizationResponseModel> object = WebClient.create(GOOGLE_API_URL)
                     .get()
                     .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_ADDRESS_PARAM + request.queryParam("city").get())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .bodyToMono(GoogleGeolocalizationResponse.class);
+                    .bodyToMono(GoogleGeolocalizationResponseModel.class);
 
-            return ok().body(object, GoogleGeolocalizationResponse.class);
+            return ok().body(object, GoogleGeolocalizationResponseModel.class);
         }
         else {
             return badRequest().build();

@@ -3,23 +3,23 @@ package com.pablito.generator.model;
 /**
  * Created by pavel_000 on 28/05/2017.
  */
-public class GeographicPoint {
+public class GeographicPointModel {
     private Double lat;
     private Double lng;
 
-    GeographicPoint(Double lat, Double lng) {
+    GeographicPointModel(final Double lat, final Double lng) {
         this.lat = lat;
         this.lng = lng;
     }
 
-    GeographicPoint() {
+    GeographicPointModel() {
     }
 
     public Double getLat() {
         return lat;
     }
 
-    public void setLat(Double lat) {
+    public void setLat(final Double lat) {
         this.lat = lat;
     }
 
@@ -27,11 +27,11 @@ public class GeographicPoint {
         return lng;
     }
 
-    public void setLng(Double lng) {
+    public void setLng(final Double lng) {
         this.lng = lng;
     }
 
-    public double milesFrom(GeographicPoint location) {
+    public double milesFrom(final GeographicPointModel location) {
         double rInMiles = 3958.756;
         double lat1Radians = radiansFromDegrees(this.getLat());
         double lat2Radians = radiansFromDegrees(location.getLat());
@@ -45,17 +45,17 @@ public class GeographicPoint {
         return rInMiles * c;
     }
 
-    public double getLatitudeDifference(GeographicPoint location) {
+    public double getLatitudeDifference(final GeographicPointModel location) {
         return Math.abs(this.lat - location.getLat());
     }
-    public double getLongitudeDifference(GeographicPoint location) {
+    public double getLongitudeDifference(final GeographicPointModel location) {
         return Math.abs(this.lng - location.getLng());
     }
-    public GeographicPoint getOffsetPoint(double latitudeOffset, double longitudeOffset) {
-        return new GeographicPoint(this.lat + latitudeOffset, this.lng + longitudeOffset);
+    public GeographicPointModel getOffsetPoint(final double latitudeOffset, final double longitudeOffset) {
+        return new GeographicPointModel(this.lat + latitudeOffset, this.lng + longitudeOffset);
     }
 
-    private double radiansFromDegrees(double degrees) {
+    private double radiansFromDegrees(final double degrees) {
         return (degrees * Math.PI) / 180.0;
     }
 }
