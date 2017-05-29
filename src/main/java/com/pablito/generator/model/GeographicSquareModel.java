@@ -22,4 +22,17 @@ public class GeographicSquareModel {
     public void setSouthwest(final GeographicPointModel southwest) {
         this.southwest = southwest;
     }
+
+    public double getDeltaLongitude() {
+        return southwest.getLongitudeDifference(northeast);
+    }
+    public double getDeltaLatitude() {
+        return southwest.getLatitudeDifference(northeast);
+    }
+    public double getLowerLeftLongitude() {
+        return southwest.getLng();
+    }
+    public double getLowerLeftLatitude() {
+        return southwest.getLat();
+    }
 }

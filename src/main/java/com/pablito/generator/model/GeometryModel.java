@@ -3,13 +3,13 @@ package com.pablito.generator.model;
 /**
  * Created by pavel_000 on 28/05/2017.
  */
-class GeometryModel {
+public class GeometryModel {
     private GeographicSquareModel bounds;
     private GeographicSquareModel viewport;
     private String location_type;
     private GeographicPointModel location;
 
-    public GeographicSquareModel getGeographicSquare() {
+    public GeographicSquareModel getBounds() {
         return bounds;
     }
 

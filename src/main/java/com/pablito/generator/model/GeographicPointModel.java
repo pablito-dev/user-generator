@@ -7,7 +7,7 @@ public class GeographicPointModel {
     private Double lat;
     private Double lng;
 
-    GeographicPointModel(final Double lat, final Double lng) {
+    public GeographicPointModel(final Double lat, final Double lng) {
         this.lat = lat;
         this.lng = lng;
     }
@@ -57,5 +57,10 @@ public class GeographicPointModel {
 
     private double radiansFromDegrees(final double degrees) {
         return (degrees * Math.PI) / 180.0;
+    }
+
+    @Override
+    public String toString() {
+        return lat + ", " + lng;
     }
 }

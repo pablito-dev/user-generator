@@ -5,6 +5,7 @@ package com.pablito.generator.model;
  */
 public class GoogleGeolocalizationModel {
     private GeometryModel geometry;
+    private String formatted_address;
 
     public GeometryModel getGeometry() {
         return geometry;
@@ -12,5 +13,13 @@ public class GoogleGeolocalizationModel {
 
     public void setGeometry(final GeometryModel geometry) {
         this.geometry = geometry;
+    }
+
+    public String getFormatted_address() {
+        return formatted_address;
+    }
+
+    public void setFormatted_address(final String formatted_address) {
+        this.formatted_address = formatted_address;
     }
 }
