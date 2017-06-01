@@ -1,6 +1,14 @@
 package com.pablito.generator.handler;
 
-import com.pablito.generator.model.*;
+import com.pablito.generator.factory.GeoLocalizationFactory;
+import com.pablito.generator.factory.UserFactory;
+import com.pablito.generator.model.domain.UserModel;
+import com.pablito.generator.model.domain.geography.GeographicPointModel;
+import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
+import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
+import com.pablito.generator.model.google.GoogleGeometryModel;
+import com.pablito.generator.model.uinames.UiNamesUserModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -13,7 +21,7 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ba
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Optional;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 /**
@@ -25,61 +33,59 @@ public class GeneratorHandler {
     private static final String GOOGLE_GEO_ENDPOINT = "/geocode/json";
     private static final String GOOGLE_ADDRESS_PARAM = "?address=";
     private static final String GOOGLE_REVERSE_PARAM = "?latlng=";
+    private static final String GOOGLE_LANG_PARAM = "&language=en";
 
     private static final String UINAMES_API_URL = "https://uinames.com/api/";
     private static final String UINAMES_AMOUNT_PARAM = "?amount=";
 
-    public Mono<ServerResponse> generateUsers(final ServerRequest request) {
-        final Optional<String> cityParam = request.queryParam("city");
-        final String sizeParam = request.queryParam("amount").orElse("10");
+    private UserFactory userFactory;
+    private GeoLocalizationFactory geoLocalizationFactory;
 
-        if (cityParam.isPresent()) {
-            final Mono<GoogleGeolocalizationModel> object = WebClient.create(GOOGLE_API_URL)
+    @Autowired
+    public GeneratorHandler(final UserFactory userFactory, final GeoLocalizationFactory geoLocalizationFactory) {
+        this.userFactory = userFactory;
+        this.geoLocalizationFactory = geoLocalizationFactory;
+    }
+
+    public Mono<ServerResponse> generateUsers(final ServerRequest request) {
+        final Integer sizeParam = request.queryParam("amount").isPresent() ? Integer.parseInt(request.queryParam("amount").get()) : 5;
+        final String countryParam = request.queryParam("country").orElse("England");
+        final String domainParam = request.queryParam("domain").orElse("example.io");
+
+        return request.queryParam("city").map(cityParam -> {
+            final Mono<GoogleGeoLocalizationModel> object = WebClient.create(GOOGLE_API_URL)
                     .get()
-                    .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_ADDRESS_PARAM + cityParam.get())
+                    .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_ADDRESS_PARAM + cityParam + GOOGLE_LANG_PARAM)
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .bodyToMono(GoogleGeolocalizationResponseModel.class)
-                    .log()
+                    .bodyToMono(GoogleGeoLocalizationResponseModel.class)
                     .filter(t -> t.getResults().size() > 0)
                     .map(i -> i.getResults().get(0));
 
 
-            final Flux<GoogleGeolocalizationModel> temp = object.flatMapMany(i ->
-                WebClient.create(GOOGLE_API_URL)
-                        .get()
-                        .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_REVERSE_PARAM + generateRandomGeographicPointWithinBounds(i.getGeometry().getBounds()))
-                        .accept(MediaType.APPLICATION_JSON)
-                        .retrieve()
-                        .bodyToMono(GoogleGeolocalizationResponseModel.class)
-                        .filter(t -> t.getResults().size() > 0)
-                        .map(t -> t.getResults().get(0))
-            ).repeat(Integer.parseInt(sizeParam));
+            final Flux<GoogleGeoLocalizationModel> temp = object.flatMapMany(i ->
+                    WebClient.create(GOOGLE_API_URL)
+                            .get()
+                            .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_REVERSE_PARAM +
+                                    geoLocalizationFactory.createRandomGeographicPointWithinBounds(i.getGeometry().getBounds()))
+                            .accept(MediaType.APPLICATION_JSON)
+                            .retrieve()
+                            .bodyToMono(GoogleGeoLocalizationResponseModel.class)
+                            .filter(t -> t.getResults().size() > 0)
+                            .map(t -> t.getResults().get(0))
+                            .filter(t -> t.getFormatted_address().contains(cityParam))
+            ).repeat().take(sizeParam);
 
             final Flux<UiNamesUserModel> users = WebClient.create(UINAMES_API_URL)
                     .get()
-                    .uri(UINAMES_AMOUNT_PARAM + Integer.parseInt(sizeParam))
+                    .uri(UINAMES_AMOUNT_PARAM + sizeParam + "&region=" + countryParam + "&ext")
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .bodyToFlux(UiNamesUserModel.class);
 
-            return ok().body(users, UiNamesUserModel.class);
-        }
-        else {
-            return badRequest().build();
-        }
-    }
+            final Flux<UserModel> result = Flux.zip(temp, users, (i, j) -> userFactory.createUser(i, j, domainParam));
 
-    private String generateRandomGeographicPointWithinBounds(final GeographicSquareModel bounds) {
-        final double deltaLong = bounds.getDeltaLatitude();
-        final double deltaLat = bounds.getDeltaLongitude();
-        final Random randomGenerator = new Random();
-        String kek = new GeographicPointModel(
-                bounds.getLowerLeftLatitude() + deltaLat + randomGenerator.nextDouble(),
-                bounds.getLowerLeftLongitude() + deltaLong + randomGenerator.nextDouble()
-        ).toString();
-        System.out.println("Generating: " + kek);
-        return kek;
-
+            return ok().body(result, UserModel.class);
+        }).orElse(badRequest().build());
     }
 }
