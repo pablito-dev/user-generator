@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by pavel_000 on 28/05/2017.
  */
-public class GoogleGeolocalizationModel {
+public class GoogleGeoLocalizationModel {
     private GoogleGeometryModel geometry;
     private String formatted_address;
     private List<GoogleAddressComponentModel> address_components;
