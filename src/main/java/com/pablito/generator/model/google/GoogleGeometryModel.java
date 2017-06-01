@@ -1,9 +1,12 @@
-package com.pablito.generator.model;
+package com.pablito.generator.model.google;
+
+import com.pablito.generator.model.domain.geography.GeographicPointModel;
+import com.pablito.generator.model.domain.geography.GeographicSquareModel;
 
 /**
  * Created by pavel_000 on 28/05/2017.
  */
-public class GeometryModel {
+public class GoogleGeometryModel {
     private GeographicSquareModel bounds;
     private GeographicSquareModel viewport;
     private String location_type;

@@ -1,4 +1,4 @@
-package com.pablito.generator.model;
+package com.pablito.generator.model.google;
 
 import java.util.List;
 
