@@ -3,25 +3,20 @@ package com.pablito.generator.handler;
 import com.pablito.generator.factory.GeoLocalizationFactory;
 import com.pablito.generator.factory.UserFactory;
 import com.pablito.generator.model.domain.UserModel;
-import com.pablito.generator.model.domain.geography.GeographicPointModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
-import com.pablito.generator.model.google.GoogleGeometryModel;
 import com.pablito.generator.model.uinames.UiNamesUserModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 import static org.springframework.web.reactive.function.server.ServerResponse.badRequest;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 
 /**
