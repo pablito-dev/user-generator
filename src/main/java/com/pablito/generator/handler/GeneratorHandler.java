@@ -6,6 +6,7 @@ import com.pablito.generator.model.domain.UserModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
 import com.pablito.generator.model.uinames.UiNamesUserModel;
+import com.pablito.generator.service.GeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -24,63 +25,21 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
  */
 @Component
 public class GeneratorHandler {
-    private static final String GOOGLE_API_URL = "https://maps.googleapis.com/maps/api";
-    private static final String GOOGLE_GEO_ENDPOINT = "/geocode/json";
-    private static final String GOOGLE_ADDRESS_PARAM = "?address=";
-    private static final String GOOGLE_REVERSE_PARAM = "?latlng=";
-    private static final String GOOGLE_LANG_PARAM = "&language=en";
 
-    private static final String UINAMES_API_URL = "https://uinames.com/api/";
-    private static final String UINAMES_AMOUNT_PARAM = "?amount=";
-
-    private UserFactory userFactory;
-    private GeoLocalizationFactory geoLocalizationFactory;
+    private GeneratorService generatorService;
 
     @Autowired
-    public GeneratorHandler(final UserFactory userFactory, final GeoLocalizationFactory geoLocalizationFactory) {
-        this.userFactory = userFactory;
-        this.geoLocalizationFactory = geoLocalizationFactory;
+    public GeneratorHandler(final GeneratorService generatorService) {
+        this.generatorService = generatorService;
     }
 
     public Mono<ServerResponse> generateUsers(final ServerRequest request) {
-        final Integer sizeParam = request.queryParam("amount").isPresent() ? Integer.parseInt(request.queryParam("amount").get()) : 5;
-        final String countryParam = request.queryParam("country").orElse("England");
+        final Integer sizeParam = request.queryParam("size").map(Integer::parseInt).orElse(5);
+        final String regionParam = request.queryParam("region").orElse("England");
         final String domainParam = request.queryParam("domain").orElse("example.io");
 
-        return request.queryParam("city").map(cityParam -> {
-            final Mono<GoogleGeoLocalizationModel> object = WebClient.create(GOOGLE_API_URL)
-                    .get()
-                    .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_ADDRESS_PARAM + cityParam + GOOGLE_LANG_PARAM)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .bodyToMono(GoogleGeoLocalizationResponseModel.class)
-                    .filter(t -> t.getResults().size() > 0)
-                    .map(i -> i.getResults().get(0));
-
-
-            final Flux<GoogleGeoLocalizationModel> temp = object.flatMapMany(i ->
-                    WebClient.create(GOOGLE_API_URL)
-                            .get()
-                            .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_REVERSE_PARAM +
-                                    geoLocalizationFactory.createRandomGeographicPointWithinBounds(i.getGeometry().getBounds()))
-                            .accept(MediaType.APPLICATION_JSON)
-                            .retrieve()
-                            .bodyToMono(GoogleGeoLocalizationResponseModel.class)
-                            .filter(t -> t.getResults().size() > 0)
-                            .map(t -> t.getResults().get(0))
-                            .filter(t -> t.getFormatted_address().contains(cityParam))
-            ).repeat().take(sizeParam);
-
-            final Flux<UiNamesUserModel> users = WebClient.create(UINAMES_API_URL)
-                    .get()
-                    .uri(UINAMES_AMOUNT_PARAM + sizeParam + "&region=" + countryParam + "&ext")
-                    .accept(MediaType.APPLICATION_JSON)
-                    .retrieve()
-                    .bodyToFlux(UiNamesUserModel.class);
-
-            final Flux<UserModel> result = Flux.zip(temp, users, (i, j) -> userFactory.createUser(i, j, domainParam));
-
-            return ok().body(result, UserModel.class);
-        }).orElse(badRequest().build());
+        return request.queryParam("city")
+                .map(cityParam -> ok().body(generatorService.generateUsers(cityParam, sizeParam, domainParam, regionParam), UserModel.class))
+                .orElse(badRequest().build());
     }
 }
