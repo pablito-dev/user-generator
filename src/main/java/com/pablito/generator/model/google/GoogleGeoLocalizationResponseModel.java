@@ -1,19 +1,19 @@
-package com.pablito.generator.model;
+package com.pablito.generator.model.google;
 
 import java.util.List;
 
 /**
  * Created by pavel_000 on 27/05/2017.
  */
-public class GoogleGeolocalizationResponseModel {
+public class GoogleGeoLocalizationResponseModel {
     private String status;
-    private List<GoogleGeolocalizationModel> results;
+    private List<GoogleGeoLocalizationModel> results;
 
-    public List<GoogleGeolocalizationModel> getResults() {
+    public List<GoogleGeoLocalizationModel> getResults() {
         return results;
     }
 
-    public void setResults(final List<GoogleGeolocalizationModel> results) {
+    public void setResults(final List<GoogleGeoLocalizationModel> results) {
         this.results = results;
     }
 

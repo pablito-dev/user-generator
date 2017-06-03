@@ -1,4 +1,4 @@
-package com.pablito.generator.model;
+package com.pablito.generator.model.domain.geography;
 
 /**
  * Created by pavel_000 on 28/05/2017.
