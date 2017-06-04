@@ -1,20 +1,15 @@
 package com.pablito.generator.handler;
 
-import com.pablito.generator.factory.GeoLocalizationFactory;
-import com.pablito.generator.factory.UserFactory;
-import com.pablito.generator.model.domain.UserModel;
-import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
-import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
-import com.pablito.generator.model.uinames.UiNamesUserModel;
+import com.pablito.generator.converter.ResponseFormatConverter;
 import com.pablito.generator.service.GeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.HashMap;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.badRequest;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
@@ -27,19 +22,26 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 public class GeneratorHandler {
 
     private GeneratorService generatorService;
+    private ResponseFormatConverter responseFormatConverter;
 
     @Autowired
-    public GeneratorHandler(final GeneratorService generatorService) {
+    public GeneratorHandler(final GeneratorService generatorService, final ResponseFormatConverter responseFormatConverter) {
         this.generatorService = generatorService;
+        this.responseFormatConverter = responseFormatConverter;
     }
 
-    public Mono<ServerResponse> generateUsers(final ServerRequest request) {
+    public Mono<ServerResponse> renderData(final ServerRequest request) {
         final Integer sizeParam = request.queryParam("size").map(Integer::parseInt).orElse(5);
         final String regionParam = request.queryParam("region").orElse("England");
         final String domainParam = request.queryParam("domain").orElse("example.io");
 
         return request.queryParam("city")
-                .map(cityParam -> ok().body(generatorService.generateUsers(cityParam, sizeParam, domainParam, regionParam), UserModel.class))
+                .map(cityParam -> ok().contentType(MediaType.TEXT_HTML).render("data",
+                        responseFormatConverter.convertDataToAddressImpex(generatorService.generateUsers(cityParam, sizeParam, domainParam, regionParam))))
                 .orElse(badRequest().build());
+    }
+
+    public Mono<ServerResponse> renderIndex(final ServerRequest request) {
+        return ok().contentType(MediaType.TEXT_HTML).render("index", new HashMap<>());
     }
 }

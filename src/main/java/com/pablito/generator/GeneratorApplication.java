@@ -18,6 +18,7 @@ public class GeneratorApplication {
 
 	@Bean
 	RouterFunction<?> router(final GeneratorHandler generatorHandler) {
-		return route(GET("/generate"), generatorHandler::generateUsers);
+		return route(GET("/generate"), generatorHandler::renderData)
+				.andRoute(GET("/index"), generatorHandler::renderIndex);
 	}
 }
