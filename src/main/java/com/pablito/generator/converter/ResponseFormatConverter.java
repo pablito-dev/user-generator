@@ -15,7 +15,7 @@ public class ResponseFormatConverter {
 
     private static final String ADDRESS_IMPEX_SCRIPT_LINE = "INSERT_UPDATE Address; &addrID; firstname; lastname; " +
             "streetname[unique = true]; town; country(isocode); " +
-            "postalcode[unique = true]; email; fax; phone1; owner(Agent.uid)\n";
+            "postalcode[unique = true]; email; fax; phone1; owner(Customer.uid)\n";
 
     public Mono<String> convertDataToAddressImpex(final Flux<UserModel> generatedUsers) {
         return generatedUsers
