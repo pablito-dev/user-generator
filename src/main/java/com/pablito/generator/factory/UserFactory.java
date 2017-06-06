@@ -4,6 +4,9 @@ import com.pablito.generator.model.domain.UserModel;
 import com.pablito.generator.model.google.GoogleAddressComponentModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.uinames.UiNamesUserModel;
+import com.pablito.generator.util.GoogleAddressComponentExtractor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -14,21 +17,33 @@ import java.util.function.Predicate;
  */
 @Component
 public class UserFactory {
-    private static final String STREET_NUMBER_TYPE = "street_number";
-    private static final String ROUTE_TYPE = "route";
-    private static final String COUNTRY_TYPE = "country";
-    private static final String POSTAL_CODE_TYPE = "postal_code";
-    private static final String LOCALITY_TYPE = "locality";
+    @Value("${google.api.address.type.street}")
+    private String STREET_NUMBER_TYPE;
+    @Value("${google.api.address.type.route}")
+    private String ROUTE_TYPE;
+    @Value("${google.api.address.type.country}")
+    private String COUNTRY_TYPE;
+    @Value("${google.api.address.type.postal}")
+    private String POSTAL_CODE_TYPE;
+    @Value("${google.api.address.type.locality}")
+    private String LOCALITY_TYPE;
+
+    private GoogleAddressComponentExtractor googleAddressComponentExtractor;
+
+    @Autowired
+    public UserFactory(final GoogleAddressComponentExtractor googleAddressComponentExtractor) {
+        this.googleAddressComponentExtractor = googleAddressComponentExtractor;
+    }
 
     public UserModel createUser(final GoogleGeoLocalizationModel googleGeoLocalizationModel,
                                 final UiNamesUserModel uiNamesUserModel, final String emailDomain) {
         final UserModel model = new UserModel();
 
-        final Optional<GoogleAddressComponentModel> routeModel = extractAddressComponent(googleGeoLocalizationModel, ROUTE_TYPE);
-        final Optional<GoogleAddressComponentModel> localityModel = extractAddressComponent(googleGeoLocalizationModel, LOCALITY_TYPE);
-        final Optional<GoogleAddressComponentModel> streetNumberModel = extractAddressComponent(googleGeoLocalizationModel, STREET_NUMBER_TYPE);
-        final Optional<GoogleAddressComponentModel> postalCodeModel =  extractAddressComponent(googleGeoLocalizationModel, POSTAL_CODE_TYPE);
-        final Optional<GoogleAddressComponentModel> countryModel =  extractAddressComponent(googleGeoLocalizationModel, COUNTRY_TYPE);
+        final Optional<GoogleAddressComponentModel> routeModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, ROUTE_TYPE);
+        final Optional<GoogleAddressComponentModel> localityModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, LOCALITY_TYPE);
+        final Optional<GoogleAddressComponentModel> streetNumberModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, STREET_NUMBER_TYPE);
+        final Optional<GoogleAddressComponentModel> postalCodeModel =  googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, POSTAL_CODE_TYPE);
+        final Optional<GoogleAddressComponentModel> countryModel =  googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, COUNTRY_TYPE);
 
         model.setFirstName(uiNamesUserModel.getName());
         model.setLastName(uiNamesUserModel.getSurname());
@@ -42,14 +57,6 @@ public class UserFactory {
         model.setEmail(buildEmailWithDomain(uiNamesUserModel, emailDomain));
 
         return model;
-    }
-
-    private Optional<GoogleAddressComponentModel> extractAddressComponent(final GoogleGeoLocalizationModel model, final String type) {
-        return model.getAddress_components().stream().filter(filterAddressComponent(type)).findFirst();
-    }
-
-    private Predicate<GoogleAddressComponentModel> filterAddressComponent(final String type) {
-        return i -> i.getTypes().stream().anyMatch(t -> t.equals(type));
     }
 
     private String buildEmailWithDomain(final UiNamesUserModel model, final String domain) {

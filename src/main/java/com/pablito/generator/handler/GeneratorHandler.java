@@ -35,9 +35,10 @@ public class GeneratorHandler {
         final String regionParam = request.queryParam("region").orElse("England");
         final String domainParam = request.queryParam("domain").orElse("example.io");
 
+//        System.out.println(request.queryParam("city").get().replace("+", " "));
         return request.queryParam("city")
                 .map(cityParam -> ok().contentType(MediaType.TEXT_HTML).render("data",
-                        responseFormatConverter.convertDataToAddressImpex(generatorService.generateUsers(cityParam, sizeParam, domainParam, regionParam))))
+                        responseFormatConverter.convertDataToAddressImpex(generatorService.generateUsers(cityParam.replace("+", " "), sizeParam, domainParam, regionParam))))
                 .orElse(badRequest().build());
     }
 
