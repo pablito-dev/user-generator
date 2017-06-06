@@ -3,10 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link data-th-href="@{/css/generator.css}" rel="stylesheet">
+
     <title>Generate user impex</title>
 </head>
 <body>
     <div th:include="navbar"></div>
+    <div class="row main">
+        <div class="container">
+            <div class="jumbotron">
+                <h1>Sample Users</h1>
+                <p>This tool allows you to generate random user data by entering location. All users will have addresses
+                    based on this location.</p>
+                <p>Try it yourself now!</p>
+            </div>
+        </div>
+        <div class="container simpleSearch">
+            <form id="generatorForm" method="get" action="/generate">
+                <input id="searchCity" name="city" class="col-md-8 col-md-offset-2" type="text" size="100"/>
+            </form>
+            <button id="generateButton" type="submit" form="generatorForm" class="btn btn-success col-md-offset-5 col-md-2">Generate!</button>
+        </div>
+    </div>
     <div th:include="footer"></div>
 </body>
 </html>
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCZxcc8qL6s6qVId3Q49pT-2pEB6U1Vosw&language=en"></script>
+<script data-th-href="@{/js/bootstrap.min.js}" rel="script"></script>
+
+<script>
+function initialize() {
+    var options = {
+          types: ['(cities)']
+    };
+    var input = document.getElementById('searchCity');
+    var autocomplete = new google.maps.places.Autocomplete(input, options);
+}
+google.maps.event.addDomListener(window, 'load', initialize);
+</script>
