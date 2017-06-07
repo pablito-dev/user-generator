@@ -3,15 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link data-th-href="@{/css/generator.css}" rel="stylesheet">
+
     <title>Generate user impex</title>
 </head>
 <body>
     <div th:include="navbar"></div>
-    <div class="row">
-        <textarea id="addressImpexField" class="col-md-12" th:text="${monoMapFuseable}"></textarea>
+    <div class="container">
+        <div class="jumbotron textAreaJumbtron">
+            <h3>Address Impex:</h3>
+            <textarea id="addressImpexField" th:text="${monoMapFuseable}"></textarea>
+            <button id="copyAddressButton" type="submit" class="btn btn-success">Copy</button>
+        </div>
     </div>
-    <div class="row">
-        <textarea id="userImpexField" class="col-md-12" th:text="${monoMapFuseable}"></textarea>
+    <div class="container">
+        <div class="jumbotron textAreaJumbtron">
+            <h3>User Impex:</h3>
+            <textarea id="userImpexField" th:text="${monoMapFuseable}"></textarea>
+            <button id="copyUserButton" type="submit" class="btn btn-success">Copy</button>
+        </div>
     </div>
     <div th:include="footer"></div>
 </body>
