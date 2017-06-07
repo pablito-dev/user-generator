@@ -29,8 +29,8 @@ public class DefaultGeneratorService implements GeneratorService{
 
     @Override
     public Flux<UserModel> generateUsers(final String cityParam, final Integer sizeParam, final String domainParam
-            , final String regionParam) {
-       return Flux.zip(googleRepository.getRandomGeoLocalizationsWithinCity(cityParam, sizeParam, googleRepository.getGeoLocalizationForCityName(cityParam))
+            , final String regionParam, final String key) {
+       return Flux.zip(googleRepository.getRandomGeoLocalizationsWithinCity(cityParam, sizeParam, googleRepository.getGeoLocalizationForCityName(cityParam, key), key)
                , uiNamesRepository.getRandomUsersForRegion(sizeParam, regionParam)
                , (i, j) -> userFactory.createUser(i, j, domainParam));
     }

@@ -37,6 +37,8 @@ public class DefaultGoogleRepository implements GoogleRepository {
     private String ADMINISTRATION1_TYPE;
     @Value("${google.api.address.type.administration2}")
     private String ADMINISTRATION2_TYPE;
+    @Value("${google.api.param.key}")
+    private String API_KEY;
 
     private GeoLocalizationFactory geoLocalizationFactory;
     private GoogleAddressComponentExtractor googleAddressComponentExtractor;
@@ -49,10 +51,10 @@ public class DefaultGoogleRepository implements GoogleRepository {
     }
 
     @Override
-    public Mono<GoogleGeoLocalizationModel> getGeoLocalizationForCityName(final String cityParam) {
+    public Mono<GoogleGeoLocalizationModel> getGeoLocalizationForCityName(final String cityParam, final String key) {
         return WebClient.create(GOOGLE_API_URL)
                 .get()
-                .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_ADDRESS_PARAM + cityParam + GOOGLE_LANG_PARAM)
+                .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_ADDRESS_PARAM + cityParam + GOOGLE_LANG_PARAM + API_KEY + key)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(GoogleGeoLocalizationResponseModel.class)
@@ -62,12 +64,12 @@ public class DefaultGoogleRepository implements GoogleRepository {
 
     @Override
     public Flux<GoogleGeoLocalizationModel> getRandomGeoLocalizationsWithinCity(final String cityParam
-            , final Integer sizeParam, final Mono<GoogleGeoLocalizationModel> startingPoint) {
+            , final Integer sizeParam, final Mono<GoogleGeoLocalizationModel> startingPoint, final String key) {
         return startingPoint.flatMapMany(i ->
                 WebClient.create(GOOGLE_API_URL)
                         .get()
                         .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_REVERSE_PARAM +
-                                geoLocalizationFactory.createRandomGeographicPointWithinBounds(i.getGeometry().getBounds()))
+                                geoLocalizationFactory.createRandomGeographicPointWithinBounds(i.getGeometry().getBounds()) + API_KEY + key)
                         .accept(MediaType.APPLICATION_JSON)
                         .retrieve()
                         .bodyToMono(GoogleGeoLocalizationResponseModel.class)
@@ -85,5 +87,5 @@ public class DefaultGoogleRepository implements GoogleRepository {
                     || googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION1_TYPE).map(j -> j.getLong_name()).orElse("").contains(onlyCity)
                     || googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION2_TYPE).map(j -> j.getLong_name()).orElse("").contains(onlyCity);
         };
-    };
+    }
 }
