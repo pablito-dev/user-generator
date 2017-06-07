@@ -1,6 +1,7 @@
 package com.pablito.generator.converter;
 
 import com.pablito.generator.model.domain.UserModel;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,18 +14,24 @@ import java.util.function.Function;
 @Component
 public class ResponseFormatConverter {
 
-    private static final String ADDRESS_IMPEX_SCRIPT_LINE = "INSERT_UPDATE Address; &addrID; firstname; lastname; " +
-            "streetname[unique = true]; town; country(isocode); " +
-            "postalcode[unique = true]; email; fax; phone1; owner(Customer.uid)\n";
+    @Value("${app.impex.address.script}")
+    private String ADDRESS_IMPEX_SCRIPT_LINE;
 
     public Mono<String> convertDataToAddressImpex(final Flux<UserModel> generatedUsers) {
         return generatedUsers
-                .map(convertUserToImpex())
+                .map(convertUserToAddressImpex())
                 .reduce((i, j) -> i + "\n" + j)
-                .map(i -> ADDRESS_IMPEX_SCRIPT_LINE + i);
+                .map(i -> ADDRESS_IMPEX_SCRIPT_LINE + "\n" + i);
     }
 
-    private Function<UserModel, String> convertUserToImpex() {
+    public Mono<String> convertDataToUserImpex(final Flux<UserModel> generatedUsers) {
+        return generatedUsers
+                .map(convertUserToUserImpex())
+                .reduce((i, j) -> i + "\n" + j)
+                .map(i -> ADDRESS_IMPEX_SCRIPT_LINE + "\n" + i);
+    }
+
+    private Function<UserModel, String> convertUserToAddressImpex() {
         return i -> new StringBuilder()
                 .append(convertFieldToImpex(i.getFirstName() + "." + i.getLastName()))
                 .append(convertFieldToImpex(i.getFirstName()))
@@ -38,6 +45,10 @@ public class ResponseFormatConverter {
                 .append(convertFieldToImpex(i.getFax()))
                 .append(convertFieldToImpex(i.getEmail()))
                 .toString();
+    }
+
+    private Function<UserModel, String> convertUserToUserImpex() {
+        return i -> i.toString();
     }
 
     private String convertFieldToImpex(final String field) {
