@@ -9,6 +9,8 @@ public class UiNamesUserModel {
     private String gender;
     private String region;
     private String phone;
+    private String title;
+    private UiNamesUserBirthdayModel birthday;
 
     public String getName() {
         return name;
@@ -48,5 +50,21 @@ public class UiNamesUserModel {
 
     public void setPhone(final String phone) {
         this.phone = phone;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
+    public UiNamesUserBirthdayModel getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(final UiNamesUserBirthdayModel birthday) {
+        this.birthday = birthday;
     }
 }

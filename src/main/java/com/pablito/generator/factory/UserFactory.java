@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * Created by pavel_000 on 01/06/2017.
@@ -52,14 +51,20 @@ public class UserFactory {
         model.setTown(localityModel.map(GoogleAddressComponentModel::getLong_name).orElse(""));
         model.setPostalCode(postalCodeModel.map(GoogleAddressComponentModel::getLong_name).orElse(""));
         model.setCountry(countryModel.map(GoogleAddressComponentModel::getShort_name).orElse(""));
-        model.setPhone1(uiNamesUserModel.getPhone());
+        model.setPhone(uiNamesUserModel.getPhone());
         model.setFax(uiNamesUserModel.getPhone());
         model.setEmail(buildEmailWithDomain(uiNamesUserModel, emailDomain));
+        model.setTitle(uiNamesUserModel.getTitle());
+        model.setBirthday(convertUiNamesDateToImpexDate(uiNamesUserModel.getBirthday().getDmy()));
 
         return model;
     }
 
     private String buildEmailWithDomain(final UiNamesUserModel model, final String domain) {
         return (model.getName() + "." + model.getSurname() + "@" + domain).toLowerCase();
+    }
+
+    private String convertUiNamesDateToImpexDate(final String uiNamesDate) {
+        return uiNamesDate.replace("/", "-");
     }
 }
