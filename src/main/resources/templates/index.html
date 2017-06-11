@@ -5,6 +5,21 @@
     <link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link data-th-href="@{/css/generator.css}" rel="stylesheet">
 
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCZxcc8qL6s6qVId3Q49pT-2pEB6U1Vosw&language=en"></script>
+    <script data-th-href="@{/js/bootstrap.min.js}" rel="script"></script>
+
+    <script data-th-inline="javascript">
+        function initialize() {
+            var options = {
+            types: ['(cities)']
+        };
+            var input = document.getElementById('searchCity');
+            var autocomplete = new google.maps.places.Autocomplete(input, options);
+        }
+
+        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
     <title>Generate user impex</title>
 </head>
 <body>
@@ -28,17 +43,3 @@
     <div th:include="footer"></div>
 </body>
 </html>
-
-<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCZxcc8qL6s6qVId3Q49pT-2pEB6U1Vosw&language=en"></script>
-<script data-th-href="@{/js/bootstrap.min.js}" rel="script"></script>
-
-<script>
-function initialize() {
-    var options = {
-          types: ['(cities)']
-    };
-    var input = document.getElementById('searchCity');
-    var autocomplete = new google.maps.places.Autocomplete(input, options);
-}
-google.maps.event.addDomListener(window, 'load', initialize);
-</script>

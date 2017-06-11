@@ -27,7 +27,6 @@ public class ResponseFormatConverter {
     @Value("${app.default.group}")
     private String IMPEX_DEFAULT_GROUP;
 
-
     public Mono<String> convertDataToAddressImpex(final Flux<UserModel> generatedUsers) {
         return generatedUsers
                 .map(convertUserToAddressImpex())

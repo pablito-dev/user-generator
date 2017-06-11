@@ -46,7 +46,6 @@ public class GeneratorHandler {
         final String domainParam = request.queryParam("domain").orElse(DEFAULT_DOMAIN);
         final String apiKey = request.queryParam("apikey").orElse("");
 
-
         return request.queryParam("city")
                 .map(cityParam -> {
                     final Flux<UserModel> generatedUsers = generatorService.generateUsers(cityParam.replace("+", " "),

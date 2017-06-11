@@ -5,6 +5,14 @@
     <link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
     <link data-th-href="@{/css/generator.css}" rel="stylesheet">
 
+    <script data-th-href="@{/js/jquery-3.2.1.min.js}" rel="script"></script>
+    <script data-th-inline="javascript">
+        function copyText(textAreaId) {
+            document.getElementById(textAreaId).select();
+            document.execCommand('copy');
+        };
+    </script>
+
     <title>Generate user impex</title>
 </head>
 <body>
@@ -13,14 +21,14 @@
         <div class="jumbotron textAreaJumbtron">
             <h3>Address Impex:</h3>
             <textarea id="addressImpexField" th:text="${monoMapFuseable}"></textarea>
-            <button id="copyAddressButton" type="submit" class="btn btn-success">Copy</button>
+            <button id="copyAddressButton" type="button" onclick="copyText('addressImpexField')" class="btn btn-success">Copy</button>
         </div>
     </div>
     <div class="container">
         <div class="jumbotron textAreaJumbtron">
             <h3>User Impex:</h3>
             <textarea id="userImpexField" th:text="${monoFilterFuseable}"></textarea>
-            <button id="copyUserButton" type="submit" class="btn btn-success">Copy</button>
+            <button id="copyUserButton" type="button" onclick="copyText('userImpexField')" class="btn btn-success">Copy</button>
         </div>
     </div>
     <div th:include="footer"></div>
