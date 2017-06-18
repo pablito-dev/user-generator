@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -37,6 +38,8 @@ public class DefaultGoogleRepository implements GoogleRepository {
     private String ADMINISTRATION1_TYPE;
     @Value("${google.api.address.type.administration2}")
     private String ADMINISTRATION2_TYPE;
+    @Value("${google.api.address.type.route}")
+    private String ROUTE_TYPE;
     @Value("${google.api.param.key}")
     private String API_KEY;
 
@@ -82,10 +85,19 @@ public class DefaultGoogleRepository implements GoogleRepository {
     private Predicate<GoogleGeoLocalizationModel> checkIfWithinCity(final String cityParam) {
         return t -> {
             final String onlyCity = cityParam.split(",")[0];
+            final Optional<String> localityValue = googleAddressComponentExtractor.extractAddressComponent(t, LOCALITY_TYPE)
+                    .map(GoogleAddressComponentModel::getLong_name);
+            final Optional<String> administration1Value = googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION1_TYPE)
+                    .map(GoogleAddressComponentModel::getLong_name);
+            final Optional<String> administration2Value = googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION2_TYPE)
+                    .map(GoogleAddressComponentModel::getLong_name);
+            final Optional<String> routeValue = googleAddressComponentExtractor.extractAddressComponent(t, ROUTE_TYPE)
+                    .map(GoogleAddressComponentModel::getLong_name);
 
-            return googleAddressComponentExtractor.extractAddressComponent(t, LOCALITY_TYPE).map(j -> j.getLong_name()).orElse("").contains(onlyCity)
-                    || googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION1_TYPE).map(j -> j.getLong_name()).orElse("").contains(onlyCity)
-                    || googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION2_TYPE).map(j -> j.getLong_name()).orElse("").contains(onlyCity);
+            return localityValue.orElse("").contains(onlyCity)
+                    || administration1Value.orElse("").contains(onlyCity)
+                    || administration2Value.orElse("").contains(onlyCity)
+                    || !routeValue.orElse("Unnamed Road").equalsIgnoreCase("Unnamed Road");
         };
     }
 }
