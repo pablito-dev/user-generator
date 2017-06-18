@@ -76,7 +76,7 @@ public class DefaultGoogleRepository implements GoogleRepository {
                         .filter(t -> t.getResults().size() > 0)
                         .map(t -> t.getResults().get(0))
                         .filter(checkIfWithinCity(cityParam))
-        ).repeat().take(sizeParam);
+        ).repeat(sizeParam * 15).take(sizeParam);
     }
 
     private Predicate<GoogleGeoLocalizationModel> checkIfWithinCity(final String cityParam) {
