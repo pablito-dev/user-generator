@@ -42,11 +42,11 @@ public class GeneratorHandler {
 
     public Mono<ServerResponse> renderData(final ServerRequest request) {
         final Integer sizeParam = request.queryParam("size").filter(size -> size.matches("\\d+")).map(Integer::parseInt).orElse(DEFAULT_DATASIZE);
-        final String regionParam = request.queryParam("region").orElse(DEFAULT_REGION);
-        final String domainParam = request.queryParam("domain").orElse(DEFAULT_DOMAIN);
+        final String regionParam = request.queryParam("region").filter(i -> !i.isEmpty()).orElse(DEFAULT_REGION);
+        final String domainParam = request.queryParam("domain").filter(i -> !i.isEmpty()).orElse(DEFAULT_DOMAIN);
         final String apiKey = request.queryParam("apikey").orElse("");
 
-        return request.queryParam("city")
+        return request.queryParam("city").filter(i -> !i.isEmpty())
                 .map(cityParam -> {
                     final Flux<UserModel> generatedUsers = generatorService.generateUsers(cityParam.replace("+", " "),
                             sizeParam, domainParam, regionParam, apiKey);
@@ -55,7 +55,7 @@ public class GeneratorHandler {
                             responseFormatConverter.convertDataToAddressImpex(generatedUsers),
                             responseFormatConverter.convertDataToCustomerImpex(generatedUsers));
                 })
-                .orElse(badRequest().build());
+                .orElse(ok().contentType(MediaType.TEXT_HTML).render("index", "Please specify city"));
     }
 
     public Mono<ServerResponse> renderIndex(final ServerRequest request) {

@@ -25,6 +25,9 @@
 <body>
     <div th:include="navbar"></div>
     <div class="main">
+        <div class="alert alert-danger error">
+            <span th:utext="${string}">Description</span>
+        </div>
         <div class="container">
             <div class="jumbotron">
                 <h1>Sample Users</h1>
@@ -36,6 +39,10 @@
         <div class="container simpleSearch">
             <form id="generatorForm" method="get" action="/generate">
                 <input id="searchCity" name="city" class="col-md-8 col-md-offset-2" type="text" size="100"/>
+                <input id="size" placeholder="Enter desired data size" name="size" class="col-md-offset-2 col-md-3" type="text" size="100"/>
+                <input id="region" placeholder="Enter desired user nationality" name="region" class="col-md-offset-2 col-md-3" type="text" size="100"/>
+                <input id="domain" placeholder="Enter e-mail domain" name="domain" class="col-md-offset-2 col-md-3" type="text" size="100"/>
+                <input id="apikey" placeholder="Enter google api key" name="apikey" class="col-md-offset-2 col-md-3" type="text" size="100"/>
             </form>
             <button id="generateButton" type="submit" form="generatorForm" class="btn btn-success col-md-offset-5 col-md-2">Generate!</button>
         </div>
