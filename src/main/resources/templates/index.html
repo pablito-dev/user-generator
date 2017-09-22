@@ -1,52 +1,60 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
-    <link data-th-href="@{/css/generator.css}" rel="stylesheet">
+	<meta charset="UTF-8">
+	<link data-th-href="@{/css/bootstrap.min.css}" rel="stylesheet">
+	<link data-th-href="@{/css/generator.css}" rel="stylesheet">
 
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCZxcc8qL6s6qVId3Q49pT-2pEB6U1Vosw&language=en"></script>
-    <script data-th-href="@{/js/bootstrap.min.js}" rel="script"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places&key=AIzaSyCZxcc8qL6s6qVId3Q49pT-2pEB6U1Vosw&language=en"></script>
+	<script data-th-href="@{/js/bootstrap.min.js}" rel="script"></script>
 
-    <script data-th-inline="javascript">
-        function initialize() {
-            var options = {
-            types: ['(cities)']
-        };
-            var input = document.getElementById('searchCity');
-            var autocomplete = new google.maps.places.Autocomplete(input, options);
-        }
+	<script data-th-inline="javascript">
+		function initialize() {
+			var options = {
+				types: ['(cities)']
+			};
+			var input = document.getElementById('searchCity');
+			var autocomplete = new google.maps.places.Autocomplete(input, options);
+		}
 
-        google.maps.event.addDomListener(window, 'load', initialize);
-    </script>
+		google.maps.event.addDomListener(window, 'load', initialize);
+	</script>
 
-    <title>Generate user impex</title>
+	<title>Generate user impex</title>
 </head>
 <body>
-    <div th:include="navbar"></div>
-    <div class="main">
-        <div class="alert alert-danger error">
-            <span th:utext="${string}">Description</span>
-        </div>
-        <div class="container">
-            <div class="jumbotron">
-                <h1>Sample Users</h1>
-                <p>This tool allows you to generate random user data by entering location. All users will have addresses
-                    based on this location.</p>
-                <p>Try it yourself now!</p>
-            </div>
-        </div>
-        <div class="container simpleSearch">
-            <form id="generatorForm" method="get" action="/generate">
-                <input id="searchCity" name="city" class="col-md-8 col-md-offset-2" type="text" size="100"/>
-                <input id="size" placeholder="Enter desired data size" name="size" class="col-md-offset-2 col-md-3" type="text" size="100"/>
-                <input id="region" placeholder="Enter desired user nationality" name="region" class="col-md-offset-2 col-md-3" type="text" size="100"/>
-                <input id="domain" placeholder="Enter e-mail domain" name="domain" class="col-md-offset-2 col-md-3" type="text" size="100"/>
-                <input id="apikey" placeholder="Enter google api key" name="apikey" class="col-md-offset-2 col-md-3" type="text" size="100"/>
-            </form>
-            <button id="generateButton" type="submit" form="generatorForm" class="btn btn-success col-md-offset-5 col-md-2">Generate!</button>
-        </div>
-    </div>
-    <div th:include="footer"></div>
+<div th:include="navbar"></div>
+<div class="main">
+	<div th:if="${string != null}" class="alert alert-danger error">
+		<span th:utext="${string}">Description</span>
+	</div>
+	<div class="container">
+		<div class="jumbotron">
+			<h1>Sample Users</h1>
+			<p>This tool allows you to generate random user data by entering location. All users will have addresses
+				based on this location.</p>
+			<p>Try it yourself now!</p>
+		</div>
+	</div>
+	<div class="container simpleSearch">
+		<form id="generatorForm" method="get" action="/generate">
+			<div class="col-md-8 col-md-offset-2">
+				<input id="searchCity" name="city" class="col-md-12" type="text" size="100"/>
+				<input id="size" placeholder="Data size" name="size" class="col-md-5" type="text"
+					   size="100"/>
+				<input id="region" placeholder="Nationality" name="region" class="col-md-offset-2 col-md-5"
+					   type="text" size="100"/>
+				<input id="domain" placeholder="E-mail domain" name="domain" class="col-md-5" type="text"
+					   size="100"/>
+				<input id="apikey" placeholder="Google API Key" name="apikey" class="col-md-offset-2 col-md-5" type="text"
+					   size="100"/>
+			</div>
+		</form>
+		<button id="generateButton" type="submit" form="generatorForm" class="btn btn-success col-md-offset-5 col-md-2">
+			Generate!
+		</button>
+	</div>
+</div>
+<div th:include="footer"></div>
 </body>
 </html>
