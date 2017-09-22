@@ -41,7 +41,7 @@ public class GeneratorHandler {
     }
 
     public Mono<ServerResponse> renderData(final ServerRequest request) {
-        final Integer sizeParam = request.queryParam("size").map(Integer::parseInt).orElse(DEFAULT_DATASIZE);
+        final Integer sizeParam = request.queryParam("size").filter(size -> size.matches("\\d+")).map(Integer::parseInt).orElse(DEFAULT_DATASIZE);
         final String regionParam = request.queryParam("region").orElse(DEFAULT_REGION);
         final String domainParam = request.queryParam("domain").orElse(DEFAULT_DOMAIN);
         final String apiKey = request.queryParam("apikey").orElse("");
