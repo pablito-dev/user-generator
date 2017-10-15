@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -30,25 +31,31 @@ public class ResponseFormatConverter {
 
     public Mono<ImpexModel> convertDataToImpex(final Flux<UserModel> users) {
         return users
-                .map(i -> {
-                    final ImpexModel impexModel = new ImpexModel();
-                    impexModel.setAddressImpex(convertUserToAddressImpex(i));
-                    impexModel.setUserImpex(convertUserToCustomerImpex(i));
+                .map(mapToImpexModel())
+                .reduce(reduceToImpexModel())
+                .map(addImpexScriptLines());
+    }
 
-                    return impexModel;
-                })
-                .reduce((i, j) -> {
-                    i.setUserImpex(i.getUserImpex() + "\n" + j.getUserImpex());
-                    i.setAddressImpex(i.getAddressImpex() + "\n" + j.getAddressImpex());
+    private Function<UserModel, ImpexModel> mapToImpexModel() {
+        return i -> new ImpexModel(convertUserToCustomerImpex(i), convertUserToAddressImpex(i));
+    }
 
-                    return i;
-                })
-                .map(i -> {
-                    i.setAddressImpex(ADDRESS_IMPEX_SCRIPT_LINE + "\n" + i.getAddressImpex());
-                    i.setUserImpex(USER_IMPEX_SCRIPT_LINE + "\n" + i.getUserImpex());
+    private BiFunction<ImpexModel, ImpexModel, ImpexModel> reduceToImpexModel() {
+        return (i, j) -> {
+            i.setUserImpex(i.getUserImpex() + "\n" + j.getUserImpex());
+            i.setAddressImpex(i.getAddressImpex() + "\n" + j.getAddressImpex());
 
-                    return i;
-                });
+            return i;
+        };
+    }
+
+    private Function<ImpexModel, ImpexModel> addImpexScriptLines() {
+        return i -> {
+            i.setAddressImpex(ADDRESS_IMPEX_SCRIPT_LINE + "\n" + i.getAddressImpex());
+            i.setUserImpex(USER_IMPEX_SCRIPT_LINE + "\n" + i.getUserImpex());
+
+            return i;
+        };
     }
 
     private String convertUserToAddressImpex(UserModel user) {

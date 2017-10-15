@@ -7,6 +7,11 @@ public class ImpexModel {
     private String userImpex;
     private String addressImpex;
 
+    public ImpexModel(final String userImpex, final String addressImpex) {
+        this.userImpex = userImpex;
+        this.addressImpex = addressImpex;
+    }
+
     public String getUserImpex() {
         return userImpex;
     }
