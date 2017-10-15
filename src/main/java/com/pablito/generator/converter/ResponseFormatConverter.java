@@ -1,5 +1,6 @@
 package com.pablito.generator.converter;
 
+import com.pablito.generator.model.domain.ImpexModel;
 import com.pablito.generator.model.domain.UserModel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -27,51 +28,56 @@ public class ResponseFormatConverter {
     @Value("${app.default.group}")
     private String IMPEX_DEFAULT_GROUP;
 
-    public Mono<String> convertDataToAddressImpex(final Flux<UserModel> generatedUsers) {
-        return generatedUsers
-                .map(convertUserToAddressImpex())
-                .reduce((i, j) -> i + "\n" + j)
-                .map(i -> ADDRESS_IMPEX_SCRIPT_LINE + "\n" + i);
+    public Mono<ImpexModel> convertDataToImpex(final Flux<UserModel> users) {
+        return users
+                .map(i -> {
+                    final ImpexModel impexModel = new ImpexModel();
+                    impexModel.setAddressImpex(convertUserToAddressImpex(i));
+                    impexModel.setUserImpex(convertUserToCustomerImpex(i));
+
+                    return impexModel;
+                })
+                .reduce((i, j) -> {
+                    i.setUserImpex(i.getUserImpex() + "\n" + j.getUserImpex());
+                    i.setAddressImpex(i.getAddressImpex() + "\n" + j.getAddressImpex());
+
+                    return i;
+                })
+                .map(i -> {
+                    i.setAddressImpex(ADDRESS_IMPEX_SCRIPT_LINE + "\n" + i.getAddressImpex());
+                    i.setUserImpex(USER_IMPEX_SCRIPT_LINE + "\n" + i.getUserImpex());
+
+                    return i;
+                });
     }
 
-    public Mono<String> convertDataToCustomerImpex(final Flux<UserModel> generatedUsers) {
-        return generatedUsers
-                .map(convertUserToCustomerImpex())
-                .reduce((i, j) -> i + "\n" + j)
-                .map(i -> USER_IMPEX_SCRIPT_LINE + "\n" + i)
-                //filter is used as a hack because it seems there is no other way to change the name of the model param
-                //name. right now if 2 mono's are returned with the same last operation the second one will overwrite
-                //the first one
-                .filter(i -> true);
-    }
-
-    private Function<UserModel, String> convertUserToAddressImpex() {
-        return i -> new StringBuilder()
-                .append(convertFieldToImpex(i.getFirstName() + "." + i.getLastName()))
-                .append(convertFieldToImpex(i.getFirstName()))
-                .append(convertFieldToImpex(i.getLastName()))
-                .append(convertFieldToImpex(i.getStreetName()))
-                .append(convertFieldToImpex(i.getTown()))
-                .append(convertFieldToImpex(i.getCountry()))
-                .append(convertFieldToImpex(i.getPostalCode()))
-                .append(convertFieldToImpex(i.getEmail()))
-                .append(convertFieldToImpex(i.getPhone()))
-                .append(convertFieldToImpex(i.getFax()))
-                .append(convertFieldToImpex(i.getEmail()))
+    private String convertUserToAddressImpex(UserModel user) {
+        return new StringBuilder()
+                .append(convertFieldToImpex(user.getFirstName() + "." + user.getLastName()))
+                .append(convertFieldToImpex(user.getFirstName()))
+                .append(convertFieldToImpex(user.getLastName()))
+                .append(convertFieldToImpex(user.getStreetName()))
+                .append(convertFieldToImpex(user.getTown()))
+                .append(convertFieldToImpex(user.getCountry()))
+                .append(convertFieldToImpex(user.getPostalCode()))
+                .append(convertFieldToImpex(user.getEmail()))
+                .append(convertFieldToImpex(user.getPhone()))
+                .append(convertFieldToImpex(user.getFax()))
+                .append(convertFieldToImpex(user.getEmail()))
                 .toString();
     }
 
-    private Function<UserModel, String> convertUserToCustomerImpex() {
-        return i -> new StringBuilder()
-                .append(convertFieldToImpex(i.getEmail()))
-                .append(convertFieldToImpex(i.getEmail()))
-                .append(convertFieldToImpex(i.getTitle()))
-                .append(convertFieldToImpex(generateGenderFromTitle(i.getTitle())))
-                .append(convertFieldToImpex(i.getFirstName() + " " + i.getLastName()))
-                .append(convertFieldToImpex(i.getFirstName() + " " + i.getLastName()))
-                .append(convertFieldToImpex(i.getCountry().toLowerCase()))
+    private String convertUserToCustomerImpex(final UserModel user) {
+        return new StringBuilder()
+                .append(convertFieldToImpex(user.getEmail()))
+                .append(convertFieldToImpex(user.getEmail()))
+                .append(convertFieldToImpex(user.getTitle()))
+                .append(convertFieldToImpex(generateGenderFromTitle(user.getTitle())))
+                .append(convertFieldToImpex(user.getFirstName() + " " + user.getLastName()))
+                .append(convertFieldToImpex(user.getFirstName() + " " + user.getLastName()))
+                .append(convertFieldToImpex(user.getCountry().toLowerCase()))
                 .append(convertFieldToImpex(IMPEX_DEFAULT_CURRENCY))
-                .append(convertFieldToImpex(i.getBirthday()))
+                .append(convertFieldToImpex(user.getBirthday()))
                 .append(convertFieldToImpex(IMPEX_DEFAULT_GROUP))
                 .toString();
     }

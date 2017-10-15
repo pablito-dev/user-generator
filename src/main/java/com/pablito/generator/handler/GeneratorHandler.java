@@ -47,14 +47,8 @@ public class GeneratorHandler {
         final String apiKey = request.queryParam("apikey").orElse("");
 
         return request.queryParam("city").filter(i -> !i.isEmpty())
-                .map(cityParam -> {
-                    final Flux<UserModel> generatedUsers = generatorService.generateUsers(cityParam.replace("+", " "),
-                            sizeParam, domainParam, regionParam, apiKey);
-
-                    return ok().contentType(MediaType.TEXT_HTML).render("data",
-                            responseFormatConverter.convertDataToAddressImpex(generatedUsers),
-                            responseFormatConverter.convertDataToCustomerImpex(generatedUsers));
-                })
+                .map(cityParam -> ok().contentType(MediaType.TEXT_HTML).render("data", responseFormatConverter.convertDataToImpex(generatorService.generateUsers(cityParam.replace("+", " "),
+                       sizeParam, domainParam, regionParam, apiKey))))
                 .orElse(ok().contentType(MediaType.TEXT_HTML).render("index", "Please specify city"));
     }
 
