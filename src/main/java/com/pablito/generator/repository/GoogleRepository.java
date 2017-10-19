@@ -8,8 +8,8 @@ import reactor.core.publisher.Mono;
  * Created by pavel_000 on 02/06/2017.
  */
 public interface GoogleRepository {
-    Mono<GoogleGeoLocalizationModel> getGeoLocalizationForCityName(final String cityParam);
+    Mono<GoogleGeoLocalizationModel> getGeoLocalizationForCityName(final String cityParam, final String key);
 
     Flux<GoogleGeoLocalizationModel> getRandomGeoLocalizationsWithinCity(final String cityParam
-            , final Integer sizeParam, final Mono<GoogleGeoLocalizationModel> startingPoint);
+            , final Integer sizeParam, final Mono<GoogleGeoLocalizationModel> startingPoint, final String key);
 }

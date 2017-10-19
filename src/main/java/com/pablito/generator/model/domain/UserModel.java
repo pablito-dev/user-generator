@@ -12,7 +12,9 @@ public class UserModel {
     private String postalCode;
     private String email;
     private String fax;
-    private String phone1;
+    private String phone;
+    private String title;
+    private String birthday;
 
     public String getFirstName() {
         return firstName;
@@ -78,11 +80,27 @@ public class UserModel {
         this.fax = fax;
     }
 
-    public String getPhone1() {
-        return phone1;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setPhone1(final String phone1) {
-        this.phone1 = phone1;
+    public void setPhone(final String phone) {
+        this.phone = phone;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(final String title) {
+        this.title = title;
+    }
+
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(final String birthday) {
+        this.birthday = birthday;
     }
 }
