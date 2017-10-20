@@ -9,8 +9,7 @@ buildscript {
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
-		classpath('se.transmode.gradle:gradle-docker:1.2')
-	}
+ 	}
 }
 
 apply plugin: 'java'
@@ -33,15 +32,4 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-webflux')
 	compile('org.springframework.boot:spring-boot-starter-thymeleaf')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
-}
-
-task buildDocker(type: Docker, dependsOn: build) {
-	applicationName = jar.baseName
-	dockerfile = file('Dockerfile')
-	doFirst {
-		copy {
-			from jar
-			into "${stageDir}/target"
-		}
-	}
 }
