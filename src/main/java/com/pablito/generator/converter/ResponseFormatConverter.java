@@ -2,7 +2,8 @@ package com.pablito.generator.converter;
 
 import com.pablito.generator.model.domain.ImpexModel;
 import com.pablito.generator.model.domain.UserModel;
-import org.springframework.beans.factory.annotation.Value;
+import com.pablito.generator.service.impl.ApplicationPropertiesService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,19 +16,12 @@ import java.util.function.Function;
  */
 @Component
 public class ResponseFormatConverter {
+    private final ApplicationPropertiesService applicationPropertiesService;
 
-    @Value("${app.impex.address.script}")
-    private String ADDRESS_IMPEX_SCRIPT_LINE;
-    @Value("${app.impex.user.script}")
-    private String USER_IMPEX_SCRIPT_LINE;
-    @Value("${app.impex.gender.male}")
-    private String IMPEX_MALE_GENDER;
-    @Value("${app.impex.gender.female}")
-    private String IMPEX_FEMALE_GENDER;
-    @Value("${app.default.currency}")
-    private String IMPEX_DEFAULT_CURRENCY;
-    @Value("${app.default.group}")
-    private String IMPEX_DEFAULT_GROUP;
+    @Autowired
+    public ResponseFormatConverter(final ApplicationPropertiesService applicationPropertiesService) {
+        this.applicationPropertiesService = applicationPropertiesService;
+    }
 
     public Mono<ImpexModel> convertDataToImpex(final Flux<UserModel> users) {
         return users
@@ -51,8 +45,8 @@ public class ResponseFormatConverter {
 
     private Function<ImpexModel, ImpexModel> addImpexScriptLines() {
         return i -> {
-            i.setAddressImpex(ADDRESS_IMPEX_SCRIPT_LINE + "\n" + i.getAddressImpex());
-            i.setUserImpex(USER_IMPEX_SCRIPT_LINE + "\n" + i.getUserImpex());
+            i.setAddressImpex(applicationPropertiesService.getAddressImpexScriptLine() + "\n" + i.getAddressImpex());
+            i.setUserImpex(applicationPropertiesService.getUserImpexScriptLone() + "\n" + i.getUserImpex());
 
             return i;
         };
@@ -83,9 +77,9 @@ public class ResponseFormatConverter {
                 .append(convertFieldToImpex(user.getFirstName() + " " + user.getLastName()))
                 .append(convertFieldToImpex(user.getFirstName() + " " + user.getLastName()))
                 .append(convertFieldToImpex(user.getCountry().toLowerCase()))
-                .append(convertFieldToImpex(IMPEX_DEFAULT_CURRENCY))
+                .append(convertFieldToImpex(applicationPropertiesService.getImpexCurrency()))
                 .append(convertFieldToImpex(user.getBirthday()))
-                .append(convertFieldToImpex(IMPEX_DEFAULT_GROUP))
+                .append(convertFieldToImpex(applicationPropertiesService.getImpexDefaultGroup()))
                 .toString();
     }
 
@@ -94,6 +88,7 @@ public class ResponseFormatConverter {
     }
 
     private String generateGenderFromTitle(final String title) {
-        return title.equalsIgnoreCase("mr") ? IMPEX_MALE_GENDER : IMPEX_FEMALE_GENDER;
+        return title.equalsIgnoreCase("mr") ? applicationPropertiesService.getImpexMaleGender() :
+                applicationPropertiesService.getImpexFemaleGender();
     }
 }
