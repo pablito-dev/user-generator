@@ -5,6 +5,7 @@ import com.pablito.generator.model.google.GoogleAddressComponentModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
 import com.pablito.generator.repository.GoogleRepository;
+import com.pablito.generator.strategy.GeoLocalizationStrategy;
 import com.pablito.generator.util.GoogleAddressComponentExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,25 +33,17 @@ public class DefaultGoogleRepository implements GoogleRepository {
     private String GOOGLE_REVERSE_PARAM;
     @Value("${google.api.param.lang}")
     private String GOOGLE_LANG_PARAM;
-    @Value("${google.api.address.type.locality}")
-    private String LOCALITY_TYPE;
-    @Value("${google.api.address.type.administration1}")
-    private String ADMINISTRATION1_TYPE;
-    @Value("${google.api.address.type.administration2}")
-    private String ADMINISTRATION2_TYPE;
-    @Value("${google.api.address.type.route}")
-    private String ROUTE_TYPE;
     @Value("${google.api.param.key}")
     private String API_KEY;
 
     private GeoLocalizationFactory geoLocalizationFactory;
-    private GoogleAddressComponentExtractor googleAddressComponentExtractor;
+    private GeoLocalizationStrategy geoLocalizationStrategy;
 
     @Autowired
     public DefaultGoogleRepository(final GeoLocalizationFactory geoLocalizationFactory,
-                                   final GoogleAddressComponentExtractor googleAddressComponentExtractor) {
+                                   final GeoLocalizationStrategy geoLocalizationStrategy) {
         this.geoLocalizationFactory = geoLocalizationFactory;
-        this.googleAddressComponentExtractor = googleAddressComponentExtractor;
+        this.geoLocalizationStrategy = geoLocalizationStrategy;
     }
 
     @Override
@@ -78,26 +71,7 @@ public class DefaultGoogleRepository implements GoogleRepository {
                         .bodyToMono(GoogleGeoLocalizationResponseModel.class)
                         .filter(t -> t.getResults().size() > 0)
                         .map(t -> t.getResults().get(0))
-                        .filter(checkIfWithinCity(cityParam))
+                        .filter(geoLocalizationStrategy.checkIfWithinCity(cityParam))
         ).repeat(sizeParam * 15).take(sizeParam);
-    }
-
-    private Predicate<GoogleGeoLocalizationModel> checkIfWithinCity(final String cityParam) {
-        return t -> {
-            final String onlyCity = cityParam.split(",")[0];
-            final Optional<String> localityValue = googleAddressComponentExtractor.extractAddressComponent(t, LOCALITY_TYPE)
-                    .map(GoogleAddressComponentModel::getLong_name);
-            final Optional<String> administration1Value = googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION1_TYPE)
-                    .map(GoogleAddressComponentModel::getLong_name);
-            final Optional<String> administration2Value = googleAddressComponentExtractor.extractAddressComponent(t, ADMINISTRATION2_TYPE)
-                    .map(GoogleAddressComponentModel::getLong_name);
-            final Optional<String> routeValue = googleAddressComponentExtractor.extractAddressComponent(t, ROUTE_TYPE)
-                    .map(GoogleAddressComponentModel::getLong_name);
-
-            return localityValue.orElse("").contains(onlyCity)
-                    || administration1Value.orElse("").contains(onlyCity)
-                    || administration2Value.orElse("").contains(onlyCity)
-                    || !routeValue.orElse("Unnamed Road").equalsIgnoreCase("Unnamed Road");
-        };
     }
 }
