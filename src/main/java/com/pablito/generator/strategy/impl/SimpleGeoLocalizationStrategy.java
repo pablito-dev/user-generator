@@ -16,12 +16,6 @@ import java.util.function.Predicate;
  */
 @Component
 public class SimpleGeoLocalizationStrategy implements GeoLocalizationStrategy {
-    @Value("${google.api.address.type.locality}")
-    private String LOCALITY_TYPE;
-    @Value("${google.api.address.type.administration1}")
-    private String ADMINISTRATION1_TYPE;
-    @Value("${google.api.address.type.administration2}")
-    private String ADMINISTRATION2_TYPE;
     @Value("${google.api.address.type.route}")
     private String ROUTE_TYPE;
 
