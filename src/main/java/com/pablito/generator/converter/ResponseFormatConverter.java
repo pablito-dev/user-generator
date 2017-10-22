@@ -17,7 +17,7 @@ import java.util.function.Function;
  */
 @Component
 public class ResponseFormatConverter {
-    private ApplicationPropertiesService applicationPropertiesService;
+    private final ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
     public ResponseFormatConverter(final ApplicationPropertiesService applicationPropertiesService) {

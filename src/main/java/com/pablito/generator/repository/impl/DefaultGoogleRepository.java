@@ -24,9 +24,9 @@ import java.util.function.Predicate;
  */
 @Repository
 public class DefaultGoogleRepository implements GoogleRepository {
-    private GeoLocalizationFactory geoLocalizationFactory;
-    private GeoLocalizationStrategy geoLocalizationStrategy;
-    private ApplicationPropertiesService applicationPropertiesService;
+    private final GeoLocalizationFactory geoLocalizationFactory;
+    private final GeoLocalizationStrategy geoLocalizationStrategy;
+    private final ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
     public DefaultGoogleRepository(final GeoLocalizationFactory geoLocalizationFactory,

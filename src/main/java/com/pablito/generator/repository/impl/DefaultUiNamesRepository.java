@@ -15,7 +15,7 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public class DefaultUiNamesRepository implements UiNamesRepository {
-    private ApplicationPropertiesService applicationPropertiesService;
+    private final ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
     public DefaultUiNamesRepository(final ApplicationPropertiesService applicationPropertiesService) {

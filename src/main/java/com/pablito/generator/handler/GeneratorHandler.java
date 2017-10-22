@@ -24,9 +24,9 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
  */
 @Component
 public class GeneratorHandler {
-    private GeneratorService generatorService;
-    private ResponseFormatConverter responseFormatConverter;
-    private ApplicationPropertiesService applicationPropertiesService;
+    private final GeneratorService generatorService;
+    private final ResponseFormatConverter responseFormatConverter;
+    private final ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
     public GeneratorHandler(final GeneratorService generatorService, final ResponseFormatConverter responseFormatConverter,

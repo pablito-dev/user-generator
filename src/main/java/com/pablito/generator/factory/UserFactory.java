@@ -17,8 +17,8 @@ import java.util.Optional;
  */
 @Component
 public class UserFactory {
-    private GoogleAddressComponentExtractor googleAddressComponentExtractor;
-    private ApplicationPropertiesService applicationPropertiesService;
+    private final GoogleAddressComponentExtractor googleAddressComponentExtractor;
+    private final ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
     public UserFactory(final GoogleAddressComponentExtractor googleAddressComponentExtractor,

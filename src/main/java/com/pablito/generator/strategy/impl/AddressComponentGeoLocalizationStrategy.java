@@ -15,8 +15,8 @@ import java.util.function.Predicate;
  * Created by Paweł Nowak on 22/10/2017.
  */
 public class AddressComponentGeoLocalizationStrategy implements GeoLocalizationStrategy{
-    private GoogleAddressComponentExtractor googleAddressComponentExtractor;
-    private ApplicationPropertiesService applicationPropertiesService;
+    private final GoogleAddressComponentExtractor googleAddressComponentExtractor;
+    private final ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
     public AddressComponentGeoLocalizationStrategy(final GoogleAddressComponentExtractor googleAddressComponentExtractor,

@@ -15,9 +15,9 @@ import reactor.core.publisher.Flux;
 @Service
 public class DefaultGeneratorService implements GeneratorService{
 
-    private DefaultGoogleRepository googleRepository;
-    private DefaultUiNamesRepository uiNamesRepository;
-    private UserFactory userFactory;
+    private final DefaultGoogleRepository googleRepository;
+    private final DefaultUiNamesRepository uiNamesRepository;
+    private final UserFactory userFactory;
 
     @Autowired
     public DefaultGeneratorService(final DefaultGoogleRepository googleRepository, final DefaultUiNamesRepository uiNamesRepository
