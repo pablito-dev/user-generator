@@ -5,6 +5,7 @@ import com.pablito.generator.model.google.GoogleAddressComponentModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
 import com.pablito.generator.repository.GoogleRepository;
+import com.pablito.generator.service.impl.ApplicationPropertiesService;
 import com.pablito.generator.strategy.GeoLocalizationStrategy;
 import com.pablito.generator.util.GoogleAddressComponentExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,34 +24,26 @@ import java.util.function.Predicate;
  */
 @Repository
 public class DefaultGoogleRepository implements GoogleRepository {
-    @Value("${google.api.url}")
-    private String GOOGLE_API_URL;
-    @Value("${google.api.endpoint}")
-    private String GOOGLE_GEO_ENDPOINT;
-    @Value("${google.api.param.address}")
-    private String GOOGLE_ADDRESS_PARAM;
-    @Value("${google.api.param.latlng}")
-    private String GOOGLE_REVERSE_PARAM;
-    @Value("${google.api.param.lang}")
-    private String GOOGLE_LANG_PARAM;
-    @Value("${google.api.param.key}")
-    private String API_KEY;
-
     private GeoLocalizationFactory geoLocalizationFactory;
     private GeoLocalizationStrategy geoLocalizationStrategy;
+    private ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
     public DefaultGoogleRepository(final GeoLocalizationFactory geoLocalizationFactory,
-                                   final GeoLocalizationStrategy geoLocalizationStrategy) {
+                                   final GeoLocalizationStrategy geoLocalizationStrategy,
+                                   final ApplicationPropertiesService applicationPropertiesService) {
         this.geoLocalizationFactory = geoLocalizationFactory;
         this.geoLocalizationStrategy = geoLocalizationStrategy;
+        this.applicationPropertiesService = applicationPropertiesService;
     }
 
     @Override
     public Mono<GoogleGeoLocalizationModel> getGeoLocalizationForCityName(final String cityParam, final String key) {
-        return WebClient.create(GOOGLE_API_URL)
+        return WebClient.create(applicationPropertiesService.getGoogelAPIUrl())
                 .get()
-                .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_ADDRESS_PARAM + cityParam + GOOGLE_LANG_PARAM + API_KEY + key)
+                .uri(applicationPropertiesService.getGoogleGeoEndpoint() + applicationPropertiesService.getGoogleAddressParam()
+                        + cityParam + applicationPropertiesService.getGoogleLangParam()
+                        + applicationPropertiesService.getGoogleAPIKey() + key)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(GoogleGeoLocalizationResponseModel.class)
@@ -62,10 +55,11 @@ public class DefaultGoogleRepository implements GoogleRepository {
     public Flux<GoogleGeoLocalizationModel> getRandomGeoLocalizationsWithinCity(final String cityParam
             , final Integer sizeParam, final Mono<GoogleGeoLocalizationModel> startingPoint, final String key) {
         return startingPoint.flatMapMany(i ->
-                WebClient.create(GOOGLE_API_URL)
+                WebClient.create(applicationPropertiesService.getGoogelAPIUrl())
                         .get()
-                        .uri(GOOGLE_GEO_ENDPOINT + GOOGLE_REVERSE_PARAM +
-                                geoLocalizationFactory.createRandomGeographicPointWithinBounds(i.getGeometry().getBounds()) + API_KEY + key)
+                        .uri(applicationPropertiesService.getGoogleGeoEndpoint() + applicationPropertiesService.getGoogleReverseParam()
+                                + geoLocalizationFactory.createRandomGeographicPointWithinBounds(i.getGeometry().getBounds())
+                                + applicationPropertiesService.getGoogleAPIKey() + key)
                         .accept(MediaType.APPLICATION_JSON)
                         .retrieve()
                         .bodyToMono(GoogleGeoLocalizationResponseModel.class)

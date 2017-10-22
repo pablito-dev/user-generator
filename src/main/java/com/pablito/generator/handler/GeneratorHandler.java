@@ -3,6 +3,7 @@ package com.pablito.generator.handler;
 import com.pablito.generator.converter.ResponseFormatConverter;
 import com.pablito.generator.model.domain.UserModel;
 import com.pablito.generator.service.GeneratorService;
+import com.pablito.generator.service.impl.ApplicationPropertiesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -23,27 +24,22 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
  */
 @Component
 public class GeneratorHandler {
-
-    @Value("${app.default.region}")
-    private String DEFAULT_REGION;
-    @Value("${app.default.domain}")
-    private String DEFAULT_DOMAIN;
-    @Value("${app.default.datasize}")
-    private Integer DEFAULT_DATASIZE;
-
     private GeneratorService generatorService;
     private ResponseFormatConverter responseFormatConverter;
+    private ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
-    public GeneratorHandler(final GeneratorService generatorService, final ResponseFormatConverter responseFormatConverter) {
+    public GeneratorHandler(final GeneratorService generatorService, final ResponseFormatConverter responseFormatConverter,
+                            final ApplicationPropertiesService applicationPropertiesService) {
         this.generatorService = generatorService;
         this.responseFormatConverter = responseFormatConverter;
+        this.applicationPropertiesService = applicationPropertiesService;
     }
 
     public Mono<ServerResponse> renderData(final ServerRequest request) {
-        final Integer sizeParam = request.queryParam("size").filter(size -> size.matches("\\d+")).map(Integer::parseInt).orElse(DEFAULT_DATASIZE);
-        final String regionParam = request.queryParam("region").filter(i -> !i.isEmpty()).orElse(DEFAULT_REGION);
-        final String domainParam = request.queryParam("domain").filter(i -> !i.isEmpty()).orElse(DEFAULT_DOMAIN);
+        final Integer sizeParam = request.queryParam("size").filter(size -> size.matches("\\d+")).map(Integer::parseInt).orElse(applicationPropertiesService.getDefaultDataSize());
+        final String regionParam = request.queryParam("region").filter(i -> !i.isEmpty()).orElse(applicationPropertiesService.getDefaultRegion());
+        final String domainParam = request.queryParam("domain").filter(i -> !i.isEmpty()).orElse(applicationPropertiesService.getDefaultDomain());
         final String apiKey = request.queryParam("apikey").orElse("");
 
         return request.queryParam("city").filter(i -> !i.isEmpty())

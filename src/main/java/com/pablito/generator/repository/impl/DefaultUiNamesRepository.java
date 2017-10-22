@@ -2,6 +2,8 @@ package com.pablito.generator.repository.impl;
 
 import com.pablito.generator.model.uinames.UiNamesUserModel;
 import com.pablito.generator.repository.UiNamesRepository;
+import com.pablito.generator.service.impl.ApplicationPropertiesService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
@@ -13,20 +15,19 @@ import reactor.core.publisher.Flux;
  */
 @Repository
 public class DefaultUiNamesRepository implements UiNamesRepository {
-    @Value("${uinames.api.url}")
-    private String UINAMES_API_URL;
-    @Value("${uinames.api.param.amount}")
-    private String UINAMES_AMOUNT_PARAM;
-    @Value("${uinames.api.param.region}")
-    private String UINAMES_REGION_PARAM;
-    @Value("${uinames.api.param.extended}")
-    private String UI_NAMES_EXTENDED_PARAM;
+    private ApplicationPropertiesService applicationPropertiesService;
+
+    @Autowired
+    public DefaultUiNamesRepository(final ApplicationPropertiesService applicationPropertiesService) {
+        this.applicationPropertiesService = applicationPropertiesService;
+    }
 
     @Override
     public Flux<UiNamesUserModel> getRandomUsersForRegion (final Integer sizeParam, final String regionParam) {
-        return WebClient.create(UINAMES_API_URL)
+        return WebClient.create(applicationPropertiesService.getUiNamesAPIUrl())
                 .get()
-                .uri(UINAMES_AMOUNT_PARAM + sizeParam + UINAMES_REGION_PARAM + regionParam + UI_NAMES_EXTENDED_PARAM)
+                .uri(applicationPropertiesService.getUiNamesAmountParam() + sizeParam + applicationPropertiesService.getUiNamesRegionParam()
+                        + regionParam + applicationPropertiesService.getUiNamesExtendedParam())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToFlux(UiNamesUserModel.class);

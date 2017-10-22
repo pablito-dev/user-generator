@@ -4,6 +4,7 @@ import com.pablito.generator.model.domain.UserModel;
 import com.pablito.generator.model.google.GoogleAddressComponentModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.uinames.UiNamesUserModel;
+import com.pablito.generator.service.impl.ApplicationPropertiesService;
 import com.pablito.generator.util.GoogleAddressComponentExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,33 +17,30 @@ import java.util.Optional;
  */
 @Component
 public class UserFactory {
-    @Value("${google.api.address.type.street}")
-    private String STREET_NUMBER_TYPE;
-    @Value("${google.api.address.type.route}")
-    private String ROUTE_TYPE;
-    @Value("${google.api.address.type.country}")
-    private String COUNTRY_TYPE;
-    @Value("${google.api.address.type.postal}")
-    private String POSTAL_CODE_TYPE;
-    @Value("${google.api.address.type.locality}")
-    private String LOCALITY_TYPE;
-
     private GoogleAddressComponentExtractor googleAddressComponentExtractor;
+    private ApplicationPropertiesService applicationPropertiesService;
 
     @Autowired
-    public UserFactory(final GoogleAddressComponentExtractor googleAddressComponentExtractor) {
+    public UserFactory(final GoogleAddressComponentExtractor googleAddressComponentExtractor,
+                       final ApplicationPropertiesService applicationPropertiesService) {
         this.googleAddressComponentExtractor = googleAddressComponentExtractor;
+        this.applicationPropertiesService = applicationPropertiesService;
     }
 
     public UserModel createUser(final GoogleGeoLocalizationModel googleGeoLocalizationModel,
                                 final UiNamesUserModel uiNamesUserModel, final String emailDomain) {
         final UserModel model = new UserModel();
 
-        final Optional<GoogleAddressComponentModel> routeModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, ROUTE_TYPE);
-        final Optional<GoogleAddressComponentModel> localityModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, LOCALITY_TYPE);
-        final Optional<GoogleAddressComponentModel> streetNumberModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, STREET_NUMBER_TYPE);
-        final Optional<GoogleAddressComponentModel> postalCodeModel =  googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, POSTAL_CODE_TYPE);
-        final Optional<GoogleAddressComponentModel> countryModel =  googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel, COUNTRY_TYPE);
+        final Optional<GoogleAddressComponentModel> routeModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel,
+                applicationPropertiesService.getRouteType());
+        final Optional<GoogleAddressComponentModel> localityModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel,
+                applicationPropertiesService.getLocalityType());
+        final Optional<GoogleAddressComponentModel> streetNumberModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel,
+                applicationPropertiesService.getStreetNumberType());
+        final Optional<GoogleAddressComponentModel> postalCodeModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel,
+                applicationPropertiesService.getPostalCodeType());
+        final Optional<GoogleAddressComponentModel> countryModel = googleAddressComponentExtractor.extractAddressComponent(googleGeoLocalizationModel,
+                applicationPropertiesService.getCountryType());
 
         model.setFirstName(uiNamesUserModel.getName());
         model.setLastName(uiNamesUserModel.getSurname());
