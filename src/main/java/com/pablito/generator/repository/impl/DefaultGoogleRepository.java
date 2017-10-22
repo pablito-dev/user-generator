@@ -1,23 +1,17 @@
 package com.pablito.generator.repository.impl;
 
 import com.pablito.generator.factory.GeoLocalizationFactory;
-import com.pablito.generator.model.google.GoogleAddressComponentModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
 import com.pablito.generator.repository.GoogleRepository;
 import com.pablito.generator.service.impl.ApplicationPropertiesService;
 import com.pablito.generator.strategy.GeoLocalizationStrategy;
-import com.pablito.generator.util.GoogleAddressComponentExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * Created by pavel_000 on 02/06/2017.

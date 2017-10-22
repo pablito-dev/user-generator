@@ -6,7 +6,6 @@ import com.pablito.generator.service.impl.ApplicationPropertiesService;
 import com.pablito.generator.strategy.GeoLocalizationStrategy;
 import com.pablito.generator.util.GoogleAddressComponentExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;

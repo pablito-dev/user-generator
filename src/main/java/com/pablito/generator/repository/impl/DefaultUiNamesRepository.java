@@ -4,7 +4,6 @@ import com.pablito.generator.model.uinames.UiNamesUserModel;
 import com.pablito.generator.repository.UiNamesRepository;
 import com.pablito.generator.service.impl.ApplicationPropertiesService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.reactive.function.client.WebClient;
