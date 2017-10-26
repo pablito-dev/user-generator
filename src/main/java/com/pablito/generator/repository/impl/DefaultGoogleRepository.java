@@ -1,5 +1,6 @@
 package com.pablito.generator.repository.impl;
 
+import com.pablito.generator.exception.GoogleRequestDeniedException;
 import com.pablito.generator.factory.GeoLocalizationFactory;
 import com.pablito.generator.model.google.GoogleGeoLocalizationModel;
 import com.pablito.generator.model.google.GoogleGeoLocalizationResponseModel;
@@ -41,8 +42,12 @@ public class DefaultGoogleRepository implements GoogleRepository {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(GoogleGeoLocalizationResponseModel.class)
-                .filter(t -> t.getResults().size() > 0)
-                .map(i -> i.getResults().get(0));
+                .map(i -> {
+                    if (i.getStatus().equalsIgnoreCase(applicationPropertiesService.getGoogleAccessDeniedStatus())) {
+                        throw new GoogleRequestDeniedException();
+                    }
+                    return i.getResults().get(0);
+                });
     }
 
     @Override

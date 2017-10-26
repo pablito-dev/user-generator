@@ -19,6 +19,9 @@ public class ApplicationPropertiesService {
     @Value("${google.api.address.type.locality}")
     private String localityType;
 
+    @Value("${google.api.error.requestdenied}")
+    private String googleAccessDeniedStatus;
+
     @Value("${app.default.region}")
     private String defaultRegion;
     @Value("${app.default.domain}")
@@ -155,5 +158,10 @@ public class ApplicationPropertiesService {
 
     public String getUiNamesExtendedParam() {
         return uiNamesExtendedParam;
+    }
+
+    public String getGoogleAccessDeniedStatus()
+    {
+        return googleAccessDeniedStatus;
     }
 }
