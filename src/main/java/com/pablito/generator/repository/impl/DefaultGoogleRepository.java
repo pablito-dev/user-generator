@@ -62,8 +62,12 @@ public class DefaultGoogleRepository implements GoogleRepository {
                         .accept(MediaType.APPLICATION_JSON)
                         .retrieve()
                         .bodyToMono(GoogleGeoLocalizationResponseModel.class)
-                        .filter(t -> t.getResults().size() > 0)
-                        .map(t -> t.getResults().get(0))
+                        .map(j -> {
+                            if (j.getStatus().equalsIgnoreCase(applicationPropertiesService.getGoogleAccessDeniedStatus())) {
+                                throw new GoogleRequestDeniedException();
+                            }
+                            return j.getResults().get(0);
+                        })
                         .filter(geoLocalizationStrategy.checkIfWithinCity(cityParam))
         ).repeat(sizeParam * 15).take(sizeParam);
     }
