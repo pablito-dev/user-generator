@@ -1,6 +1,7 @@
 package com.pablito.generator.handler;
 
 import com.pablito.generator.converter.ResponseFormatConverter;
+import com.pablito.generator.exception.GoogleRequestDeniedException;
 import com.pablito.generator.service.GeneratorService;
 import com.pablito.generator.service.impl.ApplicationPropertiesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +40,12 @@ public class GeneratorHandler {
         final String apiKey = request.queryParam("apikey").orElse("");
 
         return request.queryParam("city").filter(i -> !i.isEmpty())
-                .map(cityParam -> ok().contentType(MediaType.TEXT_HTML).render("data", responseFormatConverter.convertDataToImpex(generatorService.generateUsers(cityParam.replace("+", " "),
-                       sizeParam, domainParam, regionParam, apiKey))))
+                .map(i -> i.replace("+", " "))
+                .map(cityParam -> responseFormatConverter
+                        .convertDataToImpex(generatorService.generateUsers(cityParam, sizeParam, domainParam, regionParam, apiKey))
+                        .flatMap(j -> ok().contentType(MediaType.TEXT_HTML).render("data", j))
+                        .onErrorResume(GoogleRequestDeniedException.class, j -> ok().contentType(MediaType.TEXT_HTML).render("index", j.getMessage()))
+                )
                 .orElse(ok().contentType(MediaType.TEXT_HTML).render("index", "Please specify city"));
     }
 
