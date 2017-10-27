@@ -1,30 +1,45 @@
 package com.pablito.generator.model.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Paweł Nowak on 15/10/2017.
  */
 public class ImpexModel {
-    private String userImpex;
-    private String addressImpex;
+    private List<String> userImpex;
+    private List<String> addressImpex;
+
+    public ImpexModel() {
+        this.userImpex = new ArrayList<>();
+        this.addressImpex = new ArrayList<>();
+    }
 
     public ImpexModel(final String userImpex, final String addressImpex) {
-        this.userImpex = userImpex;
-        this.addressImpex = addressImpex;
+        this.userImpex = new ArrayList<>();
+        this.addressImpex = new ArrayList<>();
+
+        this.userImpex.add(userImpex);
+        this.addressImpex.add(addressImpex);
     }
 
     public String getUserImpex() {
-        return userImpex;
-    }
-
-    public void setUserImpex(final String userImpex) {
-        this.userImpex = userImpex;
+        return userImpex
+                .stream()
+                .reduce("", (i, j) -> i + j);
     }
 
     public String getAddressImpex() {
-        return addressImpex;
+        return addressImpex
+                .stream()
+                .reduce("", (i, j) -> i + j);
     }
 
-    public void setAddressImpex(final String addressImpex) {
-        this.addressImpex = addressImpex;
+    public void addAddressImpexLine(final String impexLine) {
+        addressImpex.add(impexLine);
+    }
+
+    public void addUserImpexLine(final String impexLine) {
+        userImpex.add(impexLine);
     }
 }

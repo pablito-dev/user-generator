@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
@@ -43,7 +44,14 @@ public class GeneratorHandler {
                 .map(i -> i.replace("+", " "))
                 .map(cityParam -> responseFormatConverter
                         .convertDataToImpex(generatorService.generateUsers(cityParam, sizeParam, domainParam, regionParam, apiKey))
-                        .flatMap(j -> ok().contentType(MediaType.TEXT_HTML).render("data", j))
+                        .flatMap(j -> {
+                            final Map<String, Object> model = new HashMap<>();
+
+                            model.put("addressImpex", j.getAddressImpex());
+                            model.put("userImpex", j.getUserImpex());
+
+                            return ok().contentType(MediaType.TEXT_HTML).render("data", model);
+                        })
                         .onErrorResume(GoogleRequestDeniedException.class, j -> ok().contentType(MediaType.TEXT_HTML).render("index", j.getMessage()))
                 )
                 .orElse(ok().contentType(MediaType.TEXT_HTML).render("index", "Please specify city"));

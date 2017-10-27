@@ -25,28 +25,14 @@ public class ResponseFormatConverter {
 
     public Mono<ImpexModel> convertDataToImpex(final Flux<UserModel> users) {
         return users
-                .map(mapToImpexModel())
-                .reduce(reduceToImpexModel())
-                .map(addImpexScriptLines());
+                .reduce(new ImpexModel(applicationPropertiesService.getAddressImpexScriptLine() + "\n",
+                        applicationPropertiesService.getUserImpexScriptLone() + "\n"), reduceToImpexModel());
     }
 
-    private Function<UserModel, ImpexModel> mapToImpexModel() {
-        return i -> new ImpexModel(convertUserToCustomerImpex(i), convertUserToAddressImpex(i));
-    }
-
-    private BiFunction<ImpexModel, ImpexModel, ImpexModel> reduceToImpexModel() {
+    private BiFunction<ImpexModel, UserModel, ImpexModel> reduceToImpexModel() {
         return (i, j) -> {
-            i.setUserImpex(i.getUserImpex() + "\n" + j.getUserImpex());
-            i.setAddressImpex(i.getAddressImpex() + "\n" + j.getAddressImpex());
-
-            return i;
-        };
-    }
-
-    private Function<ImpexModel, ImpexModel> addImpexScriptLines() {
-        return i -> {
-            i.setAddressImpex(applicationPropertiesService.getAddressImpexScriptLine() + "\n" + i.getAddressImpex());
-            i.setUserImpex(applicationPropertiesService.getUserImpexScriptLone() + "\n" + i.getUserImpex());
+            i.addAddressImpexLine(convertUserToAddressImpex(j) + "\n");
+            i.addUserImpexLine(convertUserToCustomerImpex(j) + "\n");
 
             return i;
         };
